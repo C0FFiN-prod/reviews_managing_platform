@@ -47,7 +47,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("""
                 SELECT r FROM Review r
-                WHERE r.user = :user AND r.status = com.example.demo.model.Status.PUBLISHED
+                WHERE r.user = :user AND r.status = com.example.demo.enums.Status.PUBLISHED
             """)
     Page<Review> findPagePublicByUser(@Param("user") User user, Pageable pageable);
 

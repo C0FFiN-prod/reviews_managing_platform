@@ -20,7 +20,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Query("""
                 SELECT b FROM Bookmark b
                 WHERE b.user = :user
-                AND (b.review.user = :user OR b.review.status = com.example.demo.model.Status.PUBLISHED)
+                AND (b.review.user = :user OR b.review.status = com.example.demo.enums.Status.PUBLISHED)
             """)
     List<Bookmark> findAllByUser(@Param("user") User user);
 }
