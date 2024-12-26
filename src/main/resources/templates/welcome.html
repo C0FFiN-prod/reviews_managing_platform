@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Welcome</title>
+  <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/ico">
+  <meta name="_csrf" th:value="${_csrf.token}">
+  <meta name="_csrf_header" th:value="${_csrf.headerName}">
+
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/welcome.js"></script>
+</head>
+<body>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <h2>Recent reviews</h2>
+  <section id="reviews"></section>
+</div>
+</body>
+</html>

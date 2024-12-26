@@ -1,0 +1,27 @@
+<th:blocK th:fragment="loginFormModal">
+  <div aria-hidden="true" aria-labelledby="loginModalLabel" class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Login</h5>
+          <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label class="form-label" for="username">Username</label>
+              <input class="form-control" id="username" name="username" required type="text">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="password">Password</label>
+              <input class="form-control" id="password" name="password" required type="password">
+            </div>
+            <button class="btn btn-primary d-block w-100 mb-2" type="submit">Login</button>
+            <button class="btn d-block w-100" onclick="location.href='/register'" type="button">Or create an account
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:blocK>

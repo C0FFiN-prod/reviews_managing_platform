@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Unexpected Error</title>
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+  <link href="/favicon.ico" rel="shortcut icon" type="image/ico">
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+</head>
+<body>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-danger text-white">
+          <h3>Unexpected Error</h3>
+        </div>
+        <div class="card-body">
+          <p>We're sorry, but something went wrong. Please try again later.</p>
+          <hr>
+          <p class="mb-0">Status: <span th:text="${status}"></span></p>
+          <p class="mb-0">Error: <span th:text="${error}"></span></p>
+          <p class="mb-0" th:if="${message!=''}">Message: <span th:text="${message}"></span></p>
+          <p th:if="${exception != null && exception!=''}">Exception: <span th:text="${exception}"></span></p>
+          <hr>
+          <div class="row justify-content-center">
+            <a class="btn btn-primary  w-auto"
+               th:href="${#authorization.expression('isAuthenticated()') ? '/home' : '/'}">Go to Homepage</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Review Details</title>
+  <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/ico">
+  <meta name="_csrf" th:value="${_csrf.token}">
+  <meta name="_csrf_header" th:value="${_csrf.headerName}">
+
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/view-review.js"></script>
+</head>
+<body>
+<div class="container mt-3 p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <div class="card col-12 col-lg-8 col-md-10 m-auto">
+    <div class="card-header">
+      <h3 class="m-0" th:text="${review.title}">Review Title</h3>
+    </div>
+    <div class="border-bottom card-body d-flex flex-row gap-3" th:with="_user=${review.user}">
+      <div class="d-inline-flex">
+        <a class="text-decoration-none" th:href="@{${_user.id != -1 ? '/user/'+_user.id : ''}}">
+          <img alt="Reviewer avatar" class="avatar-md rounded-circle"
+               id="reviewerAvatar"
+               th:src="${ avatar != null ? '/images/'+avatar : ''}" th:with="avatar=${_user.avatarPath}">
+        </a>
+      </div>
+      <div class="d-inline-flex flex-column">
+        <p class="mb-1">
+          <a class="text-black text-decoration-none" id="reviewerName" th:href="@{${_user.id != -1 ? '/user/'+_user.id : ''}}"
+             th:text="${_user.visibleName}">User Name</a>
+        </p>
+        <p class="date mb-1" th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy HH:mm')}"></p>
+        <span class="star-rating mb-1">
+          <span th:each="i : ${#numbers.sequence(5, 1)}">
+              <i th:class="'bi bi-star-fill '+${i <= review.rating ? 'star-on' : 'star-off'}"></i>
+          </span>
+        </span>
+      </div>
+
+    </div>
+    <div class="card-body">
+      <h4 th:text="${review.shortReview}">Good product</h4>
+      <div class="border rounded-3 p-3 mb-3 lh-sm-2" th:utext="${review.content}"></div>
+      <div class="row">
+        <div class="col-6">
+          <h5><i class="bi bi-plus-circle-fill text-success me-2"></i><strong>Pros:</strong></h5>
+          <ul class="list-unstyled">
+            <li class="text-success" th:each="pro : ${review.pros}">
+              <span class="me-2">+</span><span th:text="${pro}"></span>
+            </li>
+          </ul>
+        </div>
+        <div class="col-6">
+          <h5><i class="bi bi-dash-circle-fill text-danger me-2"></i><strong>Cons:</strong></h5>
+          <ul class="list-unstyled">
+            <li class="text-danger" th:each="con : ${review.cons}">
+              <span class="me-2">-</span><span th:text="${con}"></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-evenly" th:if="${#authorization.expression('isAuthenticated()')}">
+      <span>
+        <span class="fw-semibold" id="likeReviewCount" th:text="${likes}">0</span>
+        <a class="text-info fw-semibold text-decoration-none cursor-pointer" id="likeReviewBtn"><i
+          class="bi bi-heart-fill"></i> Like</a>
+      </span>
+
+      <a class="text-info fw-semibold text-decoration-none cursor-pointer" id="bookmarkReviewBtn"><i
+        class="bi bi-bookmark-fill"></i> Bookmark</a>
+      <a class="text-info fw-semibold text-decoration-none cursor-pointer" data-bs-target="#reportModal" data-bs-toggle="modal"
+         id="reportReviewBtn"><i class="bi bi-exclamation-triangle-fill"></i> Report</a>
+    </div>
+    <div class="card-footer d-flex justify-content-evenly"
+         th:unless="${#authorization.expression('isAuthenticated()')}">
+      <span>
+        <span class="fw-semibold" id="likeReviewCount" th:text="${likes}">0</span>
+        <a class="text-info fw-semibold text-decoration-none cursor-pointer" data-bs-target="#loginModal"
+           data-bs-toggle="modal"><i class="bi bi-heart-fill"></i> Like</a>
+      </span>
+
+      <a class="text-info fw-semibold text-decoration-none cursor-pointer" data-bs-target="#loginModal"
+         data-bs-toggle="modal"><i class="bi bi-bookmark-fill"></i> Bookmark</a>
+      <a class="text-info fw-semibold text-decoration-none cursor-pointer" data-bs-target="#loginModal"
+         data-bs-toggle="modal"><i class="bi bi-exclamation-triangle-fill"></i> Report</a>
+    </div>
+  </div>
+  <div class="mt-4">
+    <div class="flex-vcenter gap-2">
+      <h4 class="position-relative">
+        <span class="me-1">Comments</span>
+        <input class="sort-toggle visually-hidden" id="sortComments" type="checkbox">
+        <label class="icon" for="sortComments"><i class="sort-icon"></i></label>
+        <button class="bg-transparent border-0 btn-square-sm lh-1 ms-1 position-absolute" id="refreshComments"><i
+          class="refresh bi bi-arrow-repeat"></i></button>
+      </h4>
+
+    </div>
+
+    <div class="d-flex align-items-start gap-2 mt-3 mb-6" th:if="${#authorization.expression('isAuthenticated()')}">
+      <div class="rounded-circle" id="currentUserAvatar" style="width: 40px; height: 40px;"></div>
+      <div class="flex-grow-1 position-relative">
+        <label class="visually-hidden" for="commentInput">Comment area</label><textarea class="form-control"
+                                                                                        id="commentInput"
+                                                                                        placeholder="Write a comment..."
+                                                                                        rows="1"></textarea>
+        <div class="position-absolute end-0 mt-2 d-none" id="commentButtons">
+          <button class="btn btn-outline-secondary me-2" id="cancelComment">Cancel</button>
+          <button class="btn btn-primary" id="sendComment">
+            Send <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+        <div class="form-check d-none position-absolute start-0" id="anonymousCheck">
+          <input class="form-check-input" id="makeAnonymous" type="checkbox">
+          <label class="form-check-label" for="makeAnonymous">Post anonymously</label>
+        </div>
+      </div>
+    </div>
+    <div class="alert mt-3" th:unless="${#authorization.expression('isAuthenticated()')}">
+      Please <a class="text-decoration-underline text-primary" data-bs-target="#loginModal" data-bs-toggle="modal">Sign
+      In</a> to leave comments
+    </div>
+    <div class="mb-5" id="commentsSection">
+      <ul class="list-group card z-1">
+        <li class="list-group-item">
+          <p class="m-0 text-center">No comments yet. Be first!</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div aria-hidden="true" aria-labelledby="reportModalLabel" class="modal fade" id="reportModal"
+     tabindex="-1" th:if="${#authorization.expression('isAuthenticated()')}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportModalLabel">Report Review</h5>
+        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div class="modal-body">
+        <textarea class="form-control" id="reportDescription" placeholder="Describe the issue..." rows="4"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+        <button class="btn btn-primary" id="submitReportBtn" type="button">Submit Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

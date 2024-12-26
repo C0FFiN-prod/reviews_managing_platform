@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="adminSection">
+  <div class="d-flex align-items-center justify-content-center mb-4 position-relative">
+    <button aria-controls="userSection" aria-expanded="false" class="btn btn-outline-dark position-absolute start-0"
+            data-bs-target="#userSection"
+            data-bs-toggle="collapse"
+            type="submit">Profile
+    </button>
+    <h1 class="m-0 text-center">Dashboard</h1>
+  </div>
+
+  <section class="card p-0 mb-5 flex-column-reverse">
+    <div class="collapse show" id="cardContent">
+      <div class="card-body">
+        <table class="mb-0 overflow-hidden table table-striped table-hover align-middle">
+          <thead>
+          <tr>
+            <th style="width: fit-content;">#</th>
+            <th>Visible Name</th>
+            <th>Email</th>
+            <th style="min-width: 10em; max-width: 10em;">Role</th>
+            <th style="min-width: 5em; max-width: 5em;">Actions</th>
+          </tr>
+          </thead>
+          <!--/*@thymesVar id="users" type="java.util.List<com.example.demo.model.User>"*/-->
+          <tbody id="userManagementTable" th:each="iUser, iterStat : ${users}">
+          <tr th:id="'userRow'+${iUser.id}" th:if="${iUser.id != -1}" th:with="
+            isAdmin=${iUser.roleString == 'ADMIN'},
+            isUser=${iUser.roleString=='USER'},
+            isManager=${iUser.roleString=='MANAGER'}">
+            <td th:text="${iterStat.index + 1}"></td>
+            <td><a class="text-decoration-none text-dark" th:href="'/user/'+${iUser.id}"
+                   th:text="${iUser.visibleName}"></a></td>
+            <td th:text="${iUser.email}"></td>
+            <td>
+              <span th:if="${isAdmin}">ADMIN</span>
+              <select class="form-select" th:id="'roleId'+${iUser.id}" th:if="${!isAdmin}"
+                      th:name="'roleName'+${iUser.id}"
+                      th:onchange="'AdminModule.updateRole(' + ${iUser.id} + ',this.value)'">
+                <option th:default="${isUser}" th:selected="${isUser}" value="USER">User</option>
+                <option th:default="${isManager}" th:selected="${isManager}" value="MANAGER">Manager</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm" th:if="${!isAdmin}"
+                      th:onclick="'AdminModule.confirmDelete(' + ${iUser.id} + ')'">
+                Delete
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-header flex-vcenter justify-content-between">
+      <h5 class="mb-0">Users Management</h5>
+      <button class="btn dropdown-toggle btn-square" data-bs-target="#cardContent"
+              data-bs-toggle="collapse"></button>
+    </div>
+  </section>
+
+
+</th:block>
+</body>
+</html>

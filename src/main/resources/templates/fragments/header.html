@@ -1,0 +1,31 @@
+<th:block th:fragment="header">
+  <header class="d-flex justify-content-between text-center align-items-center mt-3 mb-5 gap-1">
+    <a class="m-0 fw-bold text-primary text-decoration-none" href="/" style="line-height: 1;
+    font-size: calc(var(--bs-body-font-size) * 2.4);">Reka</a>
+    <div class="dropdown w-50">
+      <label class="visually-hidden" for="searchInput">Search</label>
+      <div class="input-group">
+        <input class="form-control" id="searchInput" placeholder="Search..." type="text">
+        <button class="btn btn-primary btn-square" id="mainSearchButton"><i class="bi bi-search"></i></button>
+      </div>
+      <ul class="dropdown-menu" id="searchResults">
+      </ul>
+    </div>
+    <div class="d-flex align-items-center" th:if="${#authorization.expression('isAuthenticated()')}">
+      <a class="btn btn-outline-primary d-flex align-items-center gap-2" href="/home">
+        <div class="rounded-circle" id="headerUserAvatar" style="width: 24px; height: 24px;"></div>
+        <span id="usernameText" th:text="${#authentication.name}"></span>
+        <span id="usernameTextSmall">Me</span>
+      </a>
+    </div>
+    <button data-bs-target="#loginModal"
+            data-bs-toggle="modal"
+            id="headerLoginBtn" th:class="'btn btn-primary '+${noAuthBtn == null ? false : (noAuthBtn?'invisible':'')}" th:unless="${#authorization.expression('isAuthenticated()')}">Sign In
+    </button>
+  </header>
+  <th:block th:unless="${(noAuthBtn == null ? false : noAuthBtn) || #authorization.expression('isAuthenticated()')}">
+    <script>sessionStorage.clear()</script>
+    <div th:replace="~{fragments/login-form-modal :: loginFormModal}"></div>
+  </th:block>
+  <div class="bottom-0 col-9 col-lg-4 col-sm-6 col-xl-3 end-0 position-fixed z-over-modal" id="popupContainer"></div>
+</th:block>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search</title>
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+</head>
+<body>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <div id="searchResults">
+    <h1>Search results for "[[${query}]]"</h1>
+    <div id="categorySection" th:if="${hasCategories}">
+      <h2>Categories</h2>
+      <div class="d-flex flex-row flex-wrap gap-1 col-12 col-sm-10 col-md-6 col-lg-4">
+        <!--/*@thymesVar id="subcategories" type="java.util.List<com.example.demo.model.Category>"*/-->
+        <a class="rounded-5 pb-1 pt-1 ps-3 pe-3 alert text-decoration-none text-dark" th:each="cat:${categories}"
+           th:href="'/category/'+${cat.id}">[[${cat.name}]]</a>
+      </div>
+    </div>
+    <div id="brandSection" th:if="${hasBrands}">
+      <h2>Brands</h2>
+      <div class="d-flex flex-row flex-wrap gap-1 col-12 col-sm-10 col-md-6 col-lg-4">
+        <a class="rounded-5 pb-1 pt-1 ps-3 pe-3 alert text-decoration-none text-dark" th:each="brand : ${brands}" th:href="@{/brand/{id}(id=${brand.id})}"
+           th:text="${brand.name}">Brand Name</a>
+      </div>
+    </div>
+    <div id="reviewsSection" th:if="${hasReviews}">
+      <h2>Reviews</h2>
+      <div class="card mb-4" th:each="review : ${reviews}">
+        <div class="card-header flex-vcenter justify-content-between">
+          <h4 class="m-0">
+            <a class="text-decoration-none text-black" th:href="@{'/review/'+${review.id}}" th:text="${review.title}">Review
+              Title</a>
+          </h4>
+          <span class="fw-bolder m-0">
+          <span class="align-text-top h5 lh-1 mb-0 me-1" th:text="${review.likes}">0</span>
+          <i class="bi bi-heart-fill align-baseline text-danger"></i>
+        </span>
+        </div>
+        <div class="card-body row">
+          <div class="col-12 col-md-6 float-start">
+            <h5 th:text="${review.shortReview}">Short Review</h5>
+            <p th:text="${review.reviewTeaser}">Review Teaser</p>
+          </div>
+          <div class="col-12 col-md-6 d-flex d-inline-flex justify-content-end position-relative">
+            <span class="alert bg-white end-0 m-0 p-2 position-absolute rounded-5
+text-center text-dark top-50 translate-middle" th:if="${review.totalImages > 3}" th:text="${'+' + (left) + ' Photo'+ (left>1 ? 's' : '')}"
+                  th:with="left=${review.totalImages - 3}"></span>
+            <div class="border-1 rounded-1 p-0 overflow-hidden ms-1 gallery-item"
+                 th:each="imagePath : ${review.imagePaths}">
+              <img alt="Image" class="border-1 rounded-1 p-0 overflow-hidden ms-1 gallery-item"
+                   th:src="@{'/images/' + ${imagePath}}"/>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="star-rating">
+          <i th:classappend="${(i <= review.rating) ? 'star-on' : 'star-off'} + ' bi bi-star-fill'"
+             th:each="i : ${#numbers.sequence(5, 1)}"></i>
+        </span>
+          <a class="d-flex text-decoration-none text-black"
+             th:href="${ review.authorId != -1 ? '/user/'+review.authorId : null}">
+            <img class="avatar-xs me-1 rounded-circle"
+                 th:src="${review.authorAvatarPath!=null ? '/images/'+review.authorAvatarPath: null}">
+            [[${review.authorName}]]
+          </a>
+          <span class="date" th:text="${#temporals.format(#temporals.createDateTime(review.createdAt), 'dd.MM.yyyy')}">Date</span>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5" th:if="${!hasReviews && !hasBrands && !hasCategories}">
+      <h3>Nothing found...</h3>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta name="_csrf" th:value="${_csrf.token}">
+  <meta name="_csrf_header" th:value="${_csrf.headerName}">
+
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/edit-review.js"></script>
+  <title>Review Edit</title>
+</head>
+<body th:with="isEdit=${review != null}">
+<th:block th:if="${isEdit}">
+  <div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
+</th:block>
+
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <div class="card" id="reviewSubject">
+    <div class="card-header d-flex align-items-center justify-content-center position-relative">
+      <button class="btn btn-outline-danger position-absolute start-0" data-bs-target="#confirmModal" data-bs-toggle="modal"
+              th:if="${isEdit}" type="button">Delete
+      </button>
+      <button class="btn btn-outline-primary position-absolute end-0" name="next">Next</button>
+      <h3 class="m-0 text-center">Review is about...</h3>
+    </div>
+
+    <div class="card-body" id="reviewSubjectForm">
+
+      <div class="mb-4" th:with="category=${isEdit ? review.category : ''}">
+        <label class="form-label" for="category">Category</label>
+        <input autocomplete="off" class="form-control" id="category" placeholder="Start typing..."
+               th:value="${isEdit ? category.name : ''}" type="text">
+        <div class="invalid-feedback position-absolute d-none" id="categoryError">
+          Please choose a more specific category
+        </div>
+        <input hidden id="categoryId" name="categoryId" th:value="${isEdit ? category.id : ''}" type="hidden">
+        <ul class="list-group mt-2 d-none position-absolute fade" id="categorySuggestions"></ul>
+      </div>
+
+      <div class="mb-4" th:with="brand=${isEdit ? review.brand : ''}">
+        <label class="form-label" for="brandSelect">Select a brand</label>
+        <select class="form-select" id="brandSelect" name="brandId" required>
+          <option disabled selected th:if="${!isEdit}" value="">Select a brand...</option>
+          <option selected th:if="${isEdit}" th:text="${brand.name}" th:value="${brand.id}">My Brand</option>
+        </select>
+        <div class="invalid-feedback position-absolute d-none" id="brandError">
+          Please choose a brand from the list
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="modelName">Model Name</label>
+        <input autocomplete="off" class="form-control" id="modelName" name="modelName"
+               placeholder="Enter model name" required th:value="${isEdit ? review.model : ''}" type="text">
+        <div class="invalid-feedback position-absolute d-none" id="modelError">
+          Please enter the model
+        </div>
+      </div>
+
+      <p>Title will be:<br><span class="form-control d-inline-block" id="reviewSubjectTitle"
+                                 th:text="${isEdit ? review.title : '&nbsp;'}">&nbsp;</span></p>
+
+      <div class="rating mb-3">
+        <span class="form-label">Rating</span>
+        <div class="star-rating" id="rating">
+          <input id="star5" name="rating" th:checked="${isEdit && review.rating == 5}" type="radio" value="5"/>
+          <label class="bi bi-star-fill" for="star5" title="Excellent"></label>
+
+          <input id="star4" name="rating" th:checked="${isEdit && review.rating == 4}" type="radio" value="4"/>
+          <label class="bi bi-star-fill" for="star4" title="Very good"></label>
+
+          <input id="star3" name="rating" th:checked="${isEdit && review.rating == 3}" type="radio" value="3"/>
+          <label class="bi bi-star-fill" for="star3" title="Good"></label>
+
+          <input id="star2" name="rating" th:checked="${isEdit && review.rating == 2}" type="radio" value="2"/>
+          <label class="bi bi-star-fill" for="star2" title="Fair"></label>
+
+          <input id="star1" name="rating" required th:checked="${isEdit && review.rating == 1}" type="radio" value="1"/>
+          <label class="bi bi-star-fill" for="star1" title="Poor"></label>
+        </div>
+        <div class="invalid-feedback position-absolute d-none" id="ratingError">
+          Please rate the product
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="card d-none" id="reviewContent">
+    <div class="card-header d-flex align-items-center justify-content-center position-relative">
+      <button class="btn btn-outline-secondary position-absolute start-0" name="back">Back</button>
+      <button aria-expanded="false" class="btn btn-outline-primary dropdown-toggle position-absolute end-0"
+              data-bs-toggle="dropdown" type="button">Save
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end p-0">
+        <li class="dropdown-item" id="saveAsDraftBtn">As draft</li>
+        <li class="dropdown-item" id="publishReviewBtn">Publish</li>
+      </ul>
+      <h3 class="m-0 text-center">Write it here</h3>
+    </div>
+    <div class="card-body">
+      <h5 class="text-center" id="reviewContentTitle" th:text="${isEdit ? review.title : '&nbsp;'}">&nbsp;</h5>
+      <div id="reviewContentForm">
+        <div class="mb-4">
+          <label class="form-label" for="shortReview">Short Summary</label>
+          <input class="form-control" id="shortReview" maxlength="50" name="shortReview"
+                 placeholder="Short summary (4 to 50 characters)" th:value="${isEdit ? review.shortReview : ''}"
+                 type="text">
+          <div class="invalid-feedback position-absolute d-none" id="shortReviewError">
+            Short summary must be 4 to 50 chars long
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="prosInput">Pros</label>
+          <ul class="list-group mb-1" id="pros">
+            <th:block th:if="${isEdit}">
+              <th:block th:each="pro:${review.pros}">
+                <li class="list-group-item d-flex align-items-center border-transition">
+                  <button class="btn btn-sm btn-close me-1"></button>
+                  <th:block th:text="${#strings.capitalize(pro)}"></th:block>
+                </li>
+              </th:block>
+            </th:block>
+          </ul>
+          <input class="form-control" id="prosInput" name="prosInput" placeholder="Type and press Enter" type="text">
+          <div class="invalid-feedback position-absolute d-none" id="prosError">
+            Pros must be 4 to 30 chars long
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="consInput">Cons</label>
+          <ul class="list-group mb-1" id="cons">
+            <th:block th:if="${isEdit}">
+              <th:block th:each="con:${review.cons}">
+                <li class="list-group-item d-flex align-items-center border-transition">
+                  <button class="btn btn-sm btn-close me-1"></button>
+                  <th:block th:text="${#strings.capitalize(con)}"></th:block>
+                </li>
+              </th:block>
+            </th:block>
+          </ul>
+          <input class="form-control" id="consInput" name="consInput" placeholder="Type and press Enter" type="text">
+          <div class="invalid-feedback position-absolute d-none" id="consError">
+            Cons must be 4 to 30 chars long
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="toolbar btn-group rounded-bottom-0">
+            <button class="btn btn-outline-secondary btn-square border-bottom-0" id="boldBtn" style="font-weight: bold"
+                    type="button">A
+            </button>
+            <button class="btn btn-outline-secondary btn-square border-bottom-0" id="italicBtn" style="font-style: italic"
+                    type="button">A
+            </button>
+            <button class="btn btn-outline-secondary btn-square border-bottom-0" onclick="formatText('justifyLeft')"
+                    type="button"><i class="bi bi-text-left"></i></button>
+            <button class="btn btn-outline-secondary btn-square border-bottom-0" onclick="formatText('justifyCenter')"
+                    type="button"><i class="bi bi-text-center"></i></button>
+            <button class="btn btn-outline-secondary btn-square border-bottom-0" onclick="formatText('justifyRight')"
+                    type="button"><i class="bi bi-text-right"></i></button>
+            <button class="btn btn-outline-secondary btn-square border-bottom-0" onclick="formatText('justifyFull')"
+                    type="button"><i class="bi bi-justify"></i></button>
+          </div>
+          <div class="form-control card-body rounded-top-left-0 overflow-auto border-transition" contenteditable="true"
+               id="reviewBody"
+               style="min-height: 200px; max-height: 75vh; border: 1px solid #ccc; padding: 10px;"
+               th:utext="${isEdit ? reviewContent : ''}"></div>
+        </div>
+
+        <!-- Для загрузки изображения -->
+        <div class="mt-3" id="imageGallery">
+          <h5>Image Gallery
+            <button class="btn btn-outline-secondary btn-square-sm ms-3" id="imageBtn" type="button"><i
+              class="bi bi-plus-lg"></i></button>
+          </h5>
+          <div class="d-flex flex-wrap gap-2" id="galleryContainer">
+            <th:block th:if="${isEdit}">
+              <th:block th:each="img, i : ${gallery}">
+                <div class="gallery-item position-relative">
+                  <img alt="image"
+                       class="border-transition gallery-item img-thumbnail"
+                       th:data-img-key="${i.index}"
+                       th:src="@{'/images/' + ${img}}"/>
+                  <button class="btn btn-close btn-close-white bg-light border-dark position-absolute top-0 end-0"
+                          th:onclick="|removeImageFromGallery(${i.index})|"></button>
+                </div>
+              </th:block>
+            </th:block>
+          </div>
+        </div>
+
+        <input accept="image/*" class="form-control mt-3" hidden="hidden" id="imageInput" type="file"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>

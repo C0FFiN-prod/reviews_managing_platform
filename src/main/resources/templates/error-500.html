@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Server Error</title>
+  <link href="/favicon.ico" rel="shortcut icon" type="image/ico">
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+</head>
+<body>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <div class="d-flex justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-danger text-white">
+          <h4>500 - Internal Server Error</h4>
+        </div>
+        <div class="card-body">
+          <p class="lead">Oops! Something went wrong on our end.</p>
+          <p>We're working to fix the issue. Please try again later.</p>
+          <a class="btn btn-primary  w-auto" href="/">Go to Homepage</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

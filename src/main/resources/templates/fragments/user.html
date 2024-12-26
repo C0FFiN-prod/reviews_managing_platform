@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="userSection">
+  <div id="userSection" th:class="${role != 'USER' ? 'collapse' :''} + ' mb-5'">
+    <div class="d-flex align-items-center justify-content-center mb-4 position-relative">
+      <a class="btn btn-outline-primary position-absolute end-0" href="/new-review">Review<i
+        class="ms-1 bi bi-pencil-square"></i></a>
+      <h1 class="m-0 text-center">Your profile</h1>
+      <form action="/logout" class="position-absolute start-0" method="post">
+        <input name="_csrf" th:value="${_csrf.token}" type="hidden">
+        <button class="btn btn-outline-dark" type="submit">Sign Out</button>
+      </form>
+    </div>
+    <div class="align-items-center d-flex flex-column gap-3">
+      <div class="card col-12 col-lg-6 col-sm-8">
+        <div class="card-body">
+          <div class="d-flex flex-column align-items-center gap-3">
+            <div class="d-flex flex-column align-items-center">
+              <div class="d-flex gap-3">
+                <div class="position-relative">
+                  <button class="border-0 btn btn-square opacity-75 position-absolute rounded-2 text-light"
+                          data-bs-target="#avatarModal" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i>
+                  </button>
+                  <div class="avatar-lg bg-dark flex-center rounded-2 text-white" id="profileAvatar">U</div>
+                </div>
+                <div class="d-flex flex-column justify-content-between">
+                  <h5 class="m-0" id="username">Ivanov2007</h5>
+                  <p class="m-0">Registration date: <span id="registrationDate">12.02.1994</span></p>
+                  <p class="m-0">Reviews: <span id="reviewCount">999M</span></p>
+                  <hr class="mb-2 mt-0">
+                </div>
+              </div>
+
+            </div>
+            <div class="w-100" style="max-width: 340px;">
+              <label class="d-block date" for="email">Email</label>
+              <input class="form-control mb-1" id="email" maxlength="60" name="visibleName" placeholder="ivanov@mail.ru"
+                     type="text" value=""/>
+              <label class="d-block date" for="visibleName">Visible name</label>
+              <input class="form-control mb-1" id="visibleName" maxlength="60" name="visibleName"
+                     placeholder="Review King 2007" type="text" value=""/>
+              <label class="d-block date" for="phone">Phone</label>
+              <input class="form-control mb-1" id="phone" maxlength="16" name="phone" placeholder="+1234567890"
+                     type="tel" value=""/>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-outline-danger" data-bs-target="#confirmModal" data-bs-toggle="modal" id="deleteSelfBtn"
+                    type="button">Delete
+            </button>
+            <button class="btn btn-secondary disabled" id="saveProfileChangesBtn" type="button">Save changes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card col-12 col-lg-6 col-sm-8">
+        <div class="card-header flex-vcenter justify-content-between">
+          <h3 class="m-0">Bookmarks</h3>
+          <button aria-expanded="false" class="btn dropdown-toggle btn-square collapsed"
+                  data-bs-target="#bookmarksSection" data-bs-toggle="collapse"></button>
+        </div>
+        <div class="collapse rounded-bottom-2" id="bookmarksSection">
+          <ul class="list-group rounded-top-0" id="bookmarksList"></ul>
+        </div>
+      </div>
+
+      <div class="card col-12 col-lg-6 col-sm-8">
+        <div class="card-header flex-vcenter justify-content-between">
+          <h3 class="m-0">Reviews</h3>
+          <button aria-expanded="false" class="btn dropdown-toggle btn-square collapsed"
+                  data-bs-target="#myReviewsSection" data-bs-toggle="collapse"></button>
+        </div>
+        <div class="collapse rounded-bottom-2" id="myReviewsSection">
+          <ul class="list-group rounded-top-0" id="myReviewsList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div aria-hidden="true" aria-labelledby="staticBackdropLabel" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false"
+       id="avatarModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="avatarModalLabel">Change Avatar</h5>
+          <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+        </div>
+        <div class="align-items-center d-flex flex-column modal-body ratio  ratio-1x1">
+          <canvas id="canvasAvatar" style="cursor: move;"></canvas>
+          <input accept="image/*" class="d-none" id="uploadAvatar" type="file">
+        </div>
+        <div class="flex-nowrap modal-footer justify-content-between">
+          <span class="d-flex flex-vcenter gap-2">
+              <button class="btn btn-primary" id="uploadAvatarBtn"><i class="bi bi-upload"></i></button>
+              <input class="form-range" id="scaleAvatar" max="3" min="0.1" step="0.1" type="range" value="1">
+          </span>
+          <span>
+            <button class="btn btn-secondary d-md-inline d-none" data-bs-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-primary" id="saveAvatarBtn" type="button">Save</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</th:block>
+</body>
+</html>

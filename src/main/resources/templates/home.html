@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Home</title>
+  <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/ico">
+  <meta name="_csrf" th:value="${_csrf.token}">
+  <meta name="_csrf_header" th:value="${_csrf.headerName}">
+
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/home.js"></script>
+  <script src="/js/user.js"></script>
+  <script src="/js/croppa.js"></script>
+  <th:block th:switch="${role}">
+    <script src="/js/admin.js" th:case="'ADMIN'"></script>
+    <script src="/js/manager.js" th:case="'MANAGER'"></script>
+  </th:block>
+</head>
+<body class="overflow-x-hidden">
+<div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <th:block th:insert="~{fragments/user :: userSection}"></th:block>
+  <th:block th:switch="${role}">
+    <th:block th:case="'ADMIN'" th:insert="~{fragments/admin :: adminSection}"></th:block>
+    <th:block th:case="'MANAGER'" th:insert="~{fragments/manager :: managerSection}"></th:block>
+    <th:block th:case="'USER'"></th:block>
+    <th:block th:case="*">
+      <form action="/logout" class="position-absolute start-0" method="post">
+        <input name="_csrf" th:value="${_csrf.token}" type="hidden">
+        <button class="btn btn-outline-dark" type="submit">Sign Out</button>
+      </form>
+      <span th:text="'Unknown role: ' + ${role}"></span>
+    </th:block>
+  </th:block>
+</div>
+</body>
+</html>

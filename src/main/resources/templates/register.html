@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Register</title>
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="/css/style.css" rel="stylesheet">
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/register.js"></script>
+  <link rel="shortcut icon" th:href="@{favicon.ico}" type="image/png"/>
+</head>
+<body>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="text-center">Register</h3>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+          <form method="post" th:action="@{/register}">
+            <input name="_csrf" th:value="${_csrf.token}" type="hidden">
+            <input autofocus="autofocus" class="form-control mb-3" id="username" name="username"
+                   placeholder="Username" required type="text">
+            <input class="form-control mb-3" id="password" name="password" placeholder="Password"
+                   required type="password">
+            <input class="form-control mb-3" id="passwordConfirm" name="passwordConfirm" placeholder="Confirm password"
+                   required type="password">
+            <input class="form-control mb-3" id="email" name="email" placeholder="Email" required
+                   type="email">
+            <input class="form-control mb-3" id="phoneNumber" name="phoneNumber" placeholder="Phone (+1234567890)"
+                   type="text">
+            <div class="d-grid gap-2">
+              <button class="btn btn-success" type="submit">Sign Up</button>
+              <a class="btn btn-outline-dark" href="/login">Sign In</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

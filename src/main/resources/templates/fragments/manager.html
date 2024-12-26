@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="managerSection">
+  <div id="managerSection">
+    <div class="d-flex align-items-center justify-content-center mb-4 position-relative">
+      <button aria-controls="userSection" aria-expanded="false" class="btn btn-outline-dark position-absolute start-0"
+              data-bs-target="#userSection"
+              data-bs-toggle="collapse"
+              type="submit">Profile
+      </button>
+      <h1 class="m-0 text-center">Dashboard</h1>
+    </div>
+    <div id="reportsSection">
+      <div class="card mb-3" th:each="report : ${reports}">
+        <div class="card-header">
+          <h5 th:text="${report.review.title}">Review Title</h5>
+          <button aria-controls="reportCollapse" aria-expanded="false" class="btn btn-outline-secondary"
+                  data-bs-toggle="collapse" th:attr="data-bs-target='#reportCollapse' + ${report.id}"
+                  type="button">
+            Toggle Reports
+          </button>
+        </div>
+        <div class="collapse" th:id="'reportCollapse' + ${report.id}">
+          <div class="card-body">
+            <p th:text="${report.description}">Report Description</p>
+            <form method="post" th:action="@{/api/resolve-report}">
+              <input th:name="'reportId'" th:value="${report.id}" type="hidden"/>
+              <button class="btn btn-danger" type="submit">Mark as Resolved</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary d-block m-auto" id="refreshReports">Refresh Reports</button>
+  </div>
+  <div id="analysesSection"></div>
+</th:block>
+</body>
+</html>

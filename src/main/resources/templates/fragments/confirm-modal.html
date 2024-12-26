@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="confirmModal">
+  <div class="modal fade" id="confirmModal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="width: 400px;">
+        <div class="modal-header">
+          <h5 class="modal-title fs-5">Are you sure?</h5>
+          <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" id="confirmModal-close-btn"
+                  type="button"></button>
+        </div>
+        <div class="modal-body" id="confirmModal-body">
+          <p>Do you really want to delete your account? This action cannot be undone!</p>
+        </div>
+        <div class="modal-footer flex-vcenter justify-content-between">
+          <button class="btn btn-outline-danger" data-bs-dismiss="modal" id="confirmModal-confirm-btn" type="button">
+            Continue
+          </button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal" id="confirmModal-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Search results</title>
+  <link href="/favicon.ico" rel="shortcut icon" type="image/ico">
+  <meta name="_csrf" th:value="${_csrf.token}">
+  <meta name="_csrf_header" th:value="${_csrf.headerName}">
+  <meta name="_total_pages" th:value="${totalPages}">
+
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+  <script src="/js/bootstrap.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/search.js"></script>
+</head>
+<body>
+<div class="container p-0">
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <th:block th:if="${type == 'user'}">
+    <div class="card col-12 col-lg-6 col-md-8 col-xl-5">
+      <div class="card-body d-flex gap-3">
+        <div class="position-relative">
+          <img alt="User Avatar" class="rounded-2 avatar-lg" id="profileAvatar"
+               th:if="${user.avatarPath != null}" th:src="@{'/images/'+${user.avatarPath}}">
+          <div class="avatar-lg bg-dark flex-center rounded-2 text-white" id="profileAvatar"
+               th:unless="${user.avatarPath != null}">U
+          </div>
+        </div>
+        <div class="d-flex flex-column justify-content-between">
+          <h5 class="m-0" id="visibleName">[[${user.username}]]</h5>
+          <p class="m-0">Reviews: [[${reviewCount}]]</p>
+          <p class="m-0">Likes: [[${totalLikes}]]</p>
+          <p class="m-0 date">With us since [[${#temporals.format(registrationDate, 'dd.MM.yyyy')}]]</p>
+        </div>
+      </div>
+
+    </div>
+    <h1 class="mt-4 mb-2">Reviews</h1>
+
+
+  </th:block>
+  <th:block th:if="${type=='brand'}">
+    <h1>Reviews for [[${brand.name}]]</h1>
+  </th:block>
+  <th:block th:if="${type=='category'}">
+    <div>
+      <!--/*@thymesVar id="path" type="java.util.List<com.example.demo.model.Category>"*/-->
+      <span th:each="cat, i:${path}">
+          [[${(i.index > 0 ? ' > ' : '')}]]
+          <a class="text-decoration-none text-dark" th:href="'/category/'+${cat.id}">[[${cat.name}]]</a>
+       </span>
+    </div>
+    <h1>Reviews for category "[[${category.name}]]"</h1>
+    <div class="d-flex flex-row flex-wrap gap-1 col-12 col-sm-10 col-md-6 col-lg-4">
+      <!--/*@thymesVar id="subcategories" type="java.util.List<com.example.demo.model.Category>"*/-->
+      <a class="rounded-5 pb-1 pt-1 ps-3 pe-3 alert text-decoration-none text-dark" th:each="cat, i:${subcategories}"
+         th:href="'/category/'+${cat.id}">[[${cat.name}]]</a>
+    </div>
+  </th:block>
+  <!--/*@thymesVar id="reviews" type="java.util.List<com.example.demo.dto.ReviewDTO>"*/-->
+  <div id="reviewsSection">
+    <h4 th:if="${reviews.isEmpty()}">No reviews found.</h4>
+    <div class="card mb-4" th:each="review : ${reviews}">
+      <div class="card-header flex-vcenter justify-content-between">
+        <h4 class="m-0">
+          <a class="text-decoration-none text-black" th:href="@{/review/{id}(id=${review.id})}"
+             th:text="${review.title}">Review Title</a>
+        </h4>
+        <span class="fw-bolder m-0">
+                    <span class="align-text-top h5 lh-1 mb-0 me-1" th:text="${review.likes}">0</span>
+                    <i class="bi bi-heart-fill align-baseline text-danger"></i>
+                </span>
+      </div>
+      <div class="card-body row">
+        <div class="col-12 col-md-6 float-start">
+          <h5 th:text="${review.shortReview}">Short Review</h5>
+          <p th:text="${review.reviewTeaser}">Review Teaser</p>
+        </div>
+        <div class="col-12 col-md-6 d-flex d-inline-flex justify-content-end">
+          <span class="bg-white text-center text-dark rounded-5 m-0 position-absolute end-0 top-50"
+                th:if="${review.totalImages > 3}"
+                th:text="'+' + (${review.totalImages} - 3) + ' photos'"></span>
+          <div class="border-1 rounded-1 p-0 overflow-hidden ms-1 gallery-item"
+               th:each="imagePath, iterStat : ${review.imagePaths}">
+            <img alt="Image" class="border-1 rounded-1 p-0 overflow-hidden ms-1 gallery-item"
+                 th:src="@{'/images/' + ${imagePath}}"/>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+                <span class="star-rating">
+                    <i th:classappend="${(i <= review.rating) ? 'star-on' : 'star-off'} + ' bi bi-star-fill'"
+                       th:each="i : ${#numbers.sequence(5, 1)}"></i>
+                </span>
+        <a class="d-flex text-decoration-none text-black"
+           th:href="${ review.authorId != -1 ? 'href=/user/'+review.authorId : null}">
+          <img class="avatar-xs me-1 rounded-circle"
+               th:src="${review.authorAvatarPath!=null ? '/images/'+review.authorAvatarPath: null}">
+          [[${review.authorName}]]
+        </a>
+        <span class="date" th:text="${#temporals.format(#temporals.createDateTime(review.createdAt), 'dd.MM.yyyy')}">Date</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-2 justify-content-center pagination mb-5" id="pagination"></div>
+</div>
+
+</body>
+</html>
