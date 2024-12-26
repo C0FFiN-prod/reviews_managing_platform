@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

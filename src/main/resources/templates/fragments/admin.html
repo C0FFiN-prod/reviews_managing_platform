@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="adminSection">
   <div class="d-flex align-items-center justify-content-center mb-4 position-relative">
@@ -36,12 +36,14 @@
             <td th:text="${iUser.email}"></td>
             <td>
               <span th:if="${isAdmin}">ADMIN</span>
-              <select class="form-select" th:id="'roleId'+${iUser.id}" th:if="${!isAdmin}"
-                      th:name="'roleName'+${iUser.id}"
-                      th:onchange="'AdminModule.updateRole(' + ${iUser.id} + ',this.value)'">
-                <option th:default="${isUser}" th:selected="${isUser}" value="USER">User</option>
-                <option th:default="${isManager}" th:selected="${isManager}" value="MANAGER">Manager</option>
-              </select>
+              <label>
+                <select class="form-select" th:id="'roleId'+${iUser.id}" th:if="${!isAdmin}"
+                        th:name="'roleName'+${iUser.id}"
+                        th:onchange="'AdminModule.updateRole(' + ${iUser.id} + ',this.value)'">
+                  <option th:default="${isUser}" th:selected="${isUser}" value="USER">User</option>
+                  <option th:default="${isManager}" th:selected="${isManager}" value="MANAGER">Manager</option>
+                </select>
+              </label>
             </td>
             <td>
               <button class="btn btn-danger btn-sm" th:if="${!isAdmin}"

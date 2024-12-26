@@ -3,7 +3,7 @@ package com.example.demo;
 import com.example.demo.dto.ReviewDTO;
 import com.example.demo.model.Review;
 import com.example.demo.model.ReviewImage;
-import com.example.demo.model.Role;
+import com.example.demo.enums.Role;
 import com.example.demo.model.User;
 import com.example.demo.service.ImageService;
 import org.json.JSONObject;

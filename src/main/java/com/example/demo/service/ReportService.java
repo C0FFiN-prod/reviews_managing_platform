@@ -3,7 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.ReportDTO;
 import com.example.demo.model.Report;
 import com.example.demo.model.Review;
-import com.example.demo.model.Status;
+import com.example.demo.enums.Status;
 import com.example.demo.repository.ReportRepository;
 import com.example.demo.repository.ReviewRepository;
 import jakarta.transaction.Transactional;

@@ -2,10 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ReviewDTO;
 import com.example.demo.dto.UserDTO;
+import com.example.demo.enums.Status;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.*;
 import com.example.demo.service.*;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.example.demo.Utils.*;
 

@@ -2,11 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.UserExtendedDTO;
 import com.example.demo.model.Bookmark;
-import com.example.demo.model.Role;
+import com.example.demo.enums.Role;
 import com.example.demo.model.User;
 import com.example.demo.service.BookmarkService;
 import com.example.demo.service.ImageService;
-import com.example.demo.service.ReviewService;
 import com.example.demo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

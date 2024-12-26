@@ -64,7 +64,6 @@
     canvas.addEventListener('mousedown', (e) => {
       e.preventDefault();
       updateCanvasSize(canvas);
-      const rect = canvas.getBoundingClientRect();
       const x = e.clientX;
       const y = e.clientY;
       if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.width) {

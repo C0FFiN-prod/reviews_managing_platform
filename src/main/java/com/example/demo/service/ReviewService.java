@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.enums.Status;
 import com.example.demo.exception.ReviewNotFoundException;
 import com.example.demo.model.*;
 import com.example.demo.repository.ReviewRepository;
@@ -8,9 +9,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;

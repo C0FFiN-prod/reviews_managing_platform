@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.enums.Status;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.Data;

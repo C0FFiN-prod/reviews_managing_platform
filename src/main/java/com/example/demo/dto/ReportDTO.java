@@ -1,6 +1,5 @@
 package com.example.demo.dto;
 
-import com.example.demo.model.Report;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

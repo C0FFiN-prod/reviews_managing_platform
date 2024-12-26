@@ -2,7 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Review;
 import com.example.demo.model.ReviewImage;
-import com.example.demo.model.Role;
+import com.example.demo.enums.Role;
 import com.example.demo.model.User;
 import com.example.demo.service.ImageService;
 import com.example.demo.service.ReviewService;

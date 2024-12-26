@@ -1,9 +1,7 @@
 package com.example.demo;
 
-import com.example.demo.exception.ReviewNotFoundException;
 import com.example.demo.model.Review;
 import com.example.demo.model.ReviewComment;
-import com.example.demo.model.User;
 import com.example.demo.repository.ReviewCommentRepository;
 import com.example.demo.service.ReviewCommentService;
 import com.example.demo.service.ReviewService;
@@ -13,9 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -57,7 +53,7 @@ public class ReviewCommentServiceTest {
         // Assert
         assertNotNull(comments);
         assertEquals(1, comments.size());
-        assertEquals("This is a comment", comments.get(0).getCommentText());
+        assertEquals("This is a comment", comments.getFirst().getCommentText());
         verify(reviewCommentRepository, times(1)).findByReviewId(1L);
     }
 

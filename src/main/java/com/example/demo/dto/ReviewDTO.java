@@ -1,7 +1,7 @@
 package com.example.demo.dto;
 
 
-import com.example.demo.model.Status;
+import com.example.demo.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

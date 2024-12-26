@@ -1,9 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Category;
-import com.example.demo.model.User;
 import com.example.demo.repository.CategoryRepository;
-import com.example.demo.repository.CategoryBrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
