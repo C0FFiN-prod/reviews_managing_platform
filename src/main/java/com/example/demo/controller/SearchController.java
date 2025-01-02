@@ -4,7 +4,10 @@ import com.example.demo.dto.ReviewDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.enums.Status;
 import com.example.demo.exception.UserNotFoundException;
-import com.example.demo.model.*;
+import com.example.demo.model.Brand;
+import com.example.demo.model.Category;
+import com.example.demo.model.Review;
+import com.example.demo.model.User;
 import com.example.demo.service.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,25 +46,14 @@ public class SearchController {
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<ReviewDTO> reviews = reviewService.findByTitleContaining(query, pageable)
-                .map((review) -> mapToDTO(review, imageService));
-
-        Page<Brand> brands = brandService.findByNameContaining(query, pageable)
-                .map(brand -> (Brand) Hibernate.unproxy(brand));
-
-
-        Page<Category> categories = categoryService.findByNameContaining(query, pageable)
-                .map(category -> (Category) Hibernate.unproxy(category));
-        ;
-
+        var result = searchWithName(query, page, size);
         return ResponseEntity.ok(Map.of(
-                "reviews", reviews.getContent(),
-                "brands", brands.getContent(),
-                "categories", categories.getContent(),
-                "totalPages", Math.max(reviews.getTotalPages(), Math.max(brands.getTotalPages(), categories.getTotalPages())),
+                "reviews", result.get("reviews").getContent(),
+                "brands", result.get("brands").getContent(),
+                "categories", result.get("categories").getContent(),
+                "totalPages", Math.max(result.get("reviews").getTotalPages(), Math.max(
+                        result.get("brands").getTotalPages(),
+                        result.get("categories").getTotalPages())),
                 "currentPage", page
         ));
     }
@@ -70,24 +62,32 @@ public class SearchController {
     public String searchPage(
             @RequestParam String query,
             Model model) {
-        Pageable pageable = PageRequest.of(0, 5);
-        Page<ReviewDTO> reviews = reviewService.findByTitleContaining(query, pageable)
+        int page = 0;
+        int size = 10;
+        var result = searchWithName(query, page, size);
+        model.addAllAttributes(Map.of(
+                "query", query,
+                "reviews", result.get("reviews").getContent(),
+                "hasReviews", result.get("reviews").hasContent(),
+                "brands", result.get("brands").getContent(),
+                "hasBrands", result.get("brands").hasContent(),
+                "categories", result.get("categories").getContent(),
+                "hasCategories", result.get("categories").hasContent()
+        ));
+
+        return "search-page";
+    }
+
+    private Map<String, Page<?>> searchWithName(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Status> statuses = List.of(Status.PUBLISHED);
+        Page<ReviewDTO> reviews = reviewService.findByStatusInAndTitleContaining(statuses, query, pageable)
                 .map((review) -> mapToDTO(review, imageService));
         Page<Brand> brands = brandService.findByNameContaining(query, pageable)
                 .map(brand -> (Brand) Hibernate.unproxy(brand));
         Page<Category> categories = categoryService.findByNameContaining(query, pageable)
                 .map(category -> (Category) Hibernate.unproxy(category));
-        model.addAllAttributes(Map.of(
-                "query", query,
-                "reviews", reviews.getContent(),
-                "hasReviews", reviews.hasContent(),
-                "brands", brands.getContent(),
-                "hasBrands", brands.hasContent(),
-                "categories", categories.getContent(),
-                "hasCategories", categories.hasContent()
-        ));
-
-        return "search-page";
+        return Map.of("reviews", reviews, "brands", brands, "categories", categories);
     }
 
     @GetMapping("/user/{userIdStr}")

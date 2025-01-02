@@ -2,7 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.enums.Status;
 import com.example.demo.exception.ReviewNotFoundException;
-import com.example.demo.model.*;
+import com.example.demo.model.Brand;
+import com.example.demo.model.Category;
+import com.example.demo.model.Review;
+import com.example.demo.model.User;
 import com.example.demo.repository.ReviewRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -89,8 +92,8 @@ public class ReviewService {
     }
 
 
-    public Page<Review> findByTitleContaining(String title, Pageable pageable) {
-        return reviewRepository.findPageByTitleContainingIgnoreCase(title, pageable);
+    public Page<Review> findByStatusInAndTitleContaining(Collection<Status> statuses, String title, Pageable pageable) {
+        return reviewRepository.findPageByStatusInAndTitleContainingIgnoreCase(statuses, title, pageable);
     }
 
     public Page<Review> findPageByUser(User user, Pageable pageable) {

@@ -1,13 +1,14 @@
 package com.example.demo;
 
 import com.example.demo.dto.ReviewDTO;
+import com.example.demo.enums.Role;
 import com.example.demo.model.Review;
 import com.example.demo.model.ReviewImage;
-import com.example.demo.enums.Role;
 import com.example.demo.model.User;
 import com.example.demo.service.ImageService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static String formatLikes(Long likes) {
         if (likes < 10000) {
@@ -85,8 +88,14 @@ public class Utils {
         if (reviewText == null || reviewText.isEmpty()) {
             return "";
         }
+        String regex = "(^|(?<=\\s))(\\p{L}{1,3})\\s+";
 
-        String[] sentences = cleanReviewContent(reviewText).split("(?<=[.!?])\\s+");
+        logger.info(cleanReviewContent(reviewText));
+        logger.info(Arrays.toString(cleanReviewContent(reviewText)
+                .replaceAll(regex, "$2&nbsp;").split("(?<=[.!?])\\s+")));
+        String[] sentences = cleanReviewContent(reviewText)
+                .replaceAll(regex, "$2&nbsp;")
+                .split("(?<=[.!?])\\s+");
         if (sentences.length == 0) {
             return reviewText.length() <= maxLength ? reviewText : reviewText.substring(0, maxLength) + "...";
         }
@@ -108,16 +117,46 @@ public class Utils {
         // Если второе не влезает, пробуем разделить по запятой
         int commaIndex = secondSentence.indexOf(',');
         if (commaIndex != -1) {
-            String afterComma = secondSentence.substring(commaIndex + 1).trim();
-            String withComma = firstSentence + ", " + afterComma;
+            String[] parts = secondSentence.split(",");
+            StringBuilder secondPart = new StringBuilder();
 
-            if (withComma.length() <= maxLength) {
-                return withComma;
+            long length = firstSentence.replace("&nbsp;", " ").length();
+            int cnt = 0;
+            for (String part : parts) {
+                long shortPartLength = part.replace("&nbsp;", " ").trim().length();
+                if (length + shortPartLength > maxLength) {
+                    secondPart.setLength(secondPart.length() - 2);
+                    break;
+                }
+                length += shortPartLength + 1;
+                secondPart.append(part.trim()).append(", ");
+                cnt++;
             }
+            long lastWordsLength = 0;
+            if (cnt < parts.length) {
+                String[] lastBlockWords = parts[cnt].trim().split("\\s+");
+                StringBuilder lastWords = new StringBuilder();
+                long wordLength;
+                cnt = 0;
+                while ((cnt < lastBlockWords.length) &&
+                        (lastWordsLength + length +
+                                (wordLength = lastBlockWords[cnt].replace("&nbsp;", " ").length()) < maxLength)) {
+                    lastWords.append(lastBlockWords[cnt]);
+                    lastWordsLength += wordLength;
+                    cnt++;
+                }
+                if ((lastBlockWords.length < 3 || cnt >= 3) && (length + lastWordsLength <= maxLength)) {
+                    secondPart.append(lastWords);
+                }
+            }
+            String withComma = firstSentence + " " + secondPart.toString().trim();
+            if (length + lastWordsLength <= maxLength * 1.1) {
+                return withComma + "...";
+            }
+
             return truncateByWords(withComma, maxLength);
         }
 
-        // Если нет запятой, обрезаем второе предложение
         String truncated = firstSentence + " " + truncateByWords(secondSentence, maxLength - firstSentence.length() - 1);
         return truncated.trim();
     }
@@ -129,14 +168,17 @@ public class Utils {
 
         String[] words = text.split("\\s+");
         StringBuilder truncated = new StringBuilder();
+        long length = 0;
+        long wordLength;
         for (String word : words) {
-            if (truncated.length() + word.length() + 1 > maxLength) {
+            if (length + (wordLength = word.replace("&nbsp;", "").length()) > maxLength) {
                 break;
             }
             if (!truncated.isEmpty()) {
                 truncated.append(" ");
             }
             truncated.append(word);
+            length += wordLength;
         }
         return truncated.toString().trim() + "...";
     }

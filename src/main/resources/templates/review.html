@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>Review Details</title>
   <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/ico">
   <meta name="_csrf" th:value="${_csrf.token}">
   <meta name="_csrf_header" th:value="${_csrf.headerName}">
+  <meta name="_category_id" th:value="${review.category.id}">
 
   <link href="/css/bootstrap.css" rel="stylesheet">
   <link href="/css/style.css" rel="stylesheet">
@@ -17,7 +17,7 @@
   <script src="/js/view-review.js"></script>
 </head>
 <body>
-<div class="container mt-3 p-0">
+<div class="container p-0">
   <th:block th:replace="~{fragments/header :: header}"></th:block>
   <div class="card col-12 col-lg-8 col-md-10 m-auto">
     <div class="card-header">
@@ -25,7 +25,10 @@
     </div>
     <div class="border-bottom card-body d-flex flex-row gap-3" th:with="_user=${review.user}">
       <div class="d-inline-flex">
-        <a class="text-decoration-none" th:href="@{${_user.id != -1 ? '/user/'+_user.id : ''}}">
+        <div class="avatar-md bg-dark flex-center rounded-circle text-white" id="profileAvatar" th:if="${_user == -1}">
+          DU
+        </div>
+        <a class="text-decoration-none" th:href="@{${_user.id != -1 ? '/user/'+_user.id : ''}}" th:if="${_user != -1}">
           <img alt="Reviewer avatar" class="avatar-md rounded-circle"
                id="reviewerAvatar"
                th:src="${ avatar != null ? '/images/'+avatar : ''}" th:with="avatar=${_user.avatarPath}">
@@ -34,7 +37,7 @@
       <div class="d-inline-flex flex-column">
         <p class="mb-1">
           <a class="text-black text-decoration-none" id="reviewerName" th:href="@{${_user.id != -1 ? '/user/'+_user.id : ''}}"
-             th:text="${_user.visibleName}">User Name</a>
+             th:text="${_user.id != -1 ? _user.visibleName : 'Deleted User'}">User Name</a>
         </p>
         <p class="date mb-1" th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy HH:mm')}"></p>
         <span class="star-rating mb-1">

@@ -5,6 +5,7 @@ let cachedComments = [];
 let likeButton;
 let bookmarkButton;
 document.addEventListener('utilsInitiated', () => {
+  fillCategoryPath(parseInt(document.querySelector('meta[name="_category_id"]').getAttribute("value")), 10);
   const reviewerAvatar = document.getElementById('reviewerAvatar');
   const currentURL = window.location.href;
   const commentInput = document.getElementById('commentInput');
@@ -49,7 +50,7 @@ document.addEventListener('utilsInitiated', () => {
       const response = await sendFetch(null, `/api/toggle-like/${reviewId}`, 'POST');
       if (response.ok) {
         let reviewStatus = sessionStorage.getItem(reviewStatusKey);
-        if (!reviewStatus) await updateReviewStatus();
+        if (!reviewStatus) await updateReviewStatus(reviewId);
         else {
           reviewStatus = JSON.parse(reviewStatus)
           reviewStatus.isLiked = response.isLiked;
@@ -63,23 +64,7 @@ document.addEventListener('utilsInitiated', () => {
     }
   });
 
-  bookmarkButton?.addEventListener('click', async () => {
-    try {
-      const response = await sendFetch(null, `/api/toggle-bookmark/${reviewId}`, 'POST');
-      if (response.ok) {
-        let reviewStatus = sessionStorage.getItem(reviewStatusKey);
-        if (!reviewStatus) await updateReviewStatus();
-        else {
-          reviewStatus = JSON.parse(reviewStatus)
-          reviewStatus.isBookmarked = response.isBookmarked;
-          sessionStorage.setItem(reviewStatusKey, JSON.stringify(reviewStatus));
-        }
-        bookmarkButton.classList.toggle('text-warning', response.isBookmarked);
-      }
-    } catch (error) {
-      createPopup('Error toggling bookmark: ' + error, messageLevel.ERROR);
-    }
-  });
+  bookmarkButton?.addEventListener('click', (event) => toggleBookmark(event.target, reviewId));
 
   // Обработка поля комментария
   commentInput?.addEventListener('focus', () => {
@@ -175,7 +160,7 @@ document.addEventListener('utilsInitiated', () => {
     updateCommentsSection(cachedComments);
   });
 
-  updateReviewStatus().then(_ => {
+  updateReviewStatus(reviewId).then(_ => {
   });
   // Существующий код загрузки комментариев
   loadComments(reviewId).then(_ => {
@@ -183,29 +168,6 @@ document.addEventListener('utilsInitiated', () => {
 
 }, {once: true});
 
-async function updateReviewStatus() {
-  try {
-    if (!userId) return;
-    let reviewStatus = JSON.parse(sessionStorage.getItem(reviewStatusKey));
-    if (!reviewStatus) {
-      // Fetch from server if not cached
-      const response = await sendFetch(null, `/api/review-status/${reviewId}`);
-      if (response.ok) {
-        sessionStorage.setItem(reviewStatusKey,
-          JSON.stringify({
-              isLiked: response.isLiked,
-              isBookmarked: response.isBookmarked
-            }
-          ));
-        reviewStatus = response;
-      }
-    }
-    likeButton.classList.toggle('text-danger', reviewStatus.isLiked);
-    bookmarkButton.classList.toggle('text-warning', reviewStatus.isBookmarked);
-  } catch (error) {
-    createPopup('Error loading review status: ' + error);
-  }
-}
 
 function sortComments() {
   cachedComments.sort((a, b) => {

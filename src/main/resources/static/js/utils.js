@@ -6,7 +6,7 @@ let userId;
 const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("value");
 const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("value");
 let reviewsSection;
-
+let categoryPath;
 function get(name) {
   if ((name = (new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)')).exec(location.search)))
     return decodeURIComponent(name[1]);
@@ -40,9 +40,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   if (!sessionStorage.getItem('currentUser')) {
     try {
-      const response = await sendFetch(null, '/api/current-user', 'get');
+      const response = await sendFetch(null, '/api/public/current-user', 'get');
       if (response.ok && !response.redirected) {
-        sessionStorage.setItem('currentUser', JSON.stringify(response));
+        if (response.user)
+          sessionStorage.setItem('currentUser', JSON.stringify(response.user));
+        else
+          sessionStorage.removeItem('currentUser');
       }
     } catch (error) {
       createPopup('Error fetching user data: ' + error);
@@ -75,8 +78,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       categoryBrands = new Map(categoryBrandsData);
   }
   const searchInput = document.getElementById('searchInput');
+
   searchInput?.addEventListener('input', async (event) => {
-    const query = event.target.value;
+    const query = event.target.value.trim();
     if (!query || query.length < 3) return;
     try {
       const response = await sendFetch(null,
@@ -90,12 +94,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       createPopup('Error during search: ' + error, messageLevel.ERROR);
     }
   });
+  searchInput?.addEventListener('keydown', async (event) => {
+    const query = searchInput.value.trim();
+    if (event.key === 'Enter' && query)
+      location.href = '/search?query=' + query;
+  });
   document.getElementById('mainSearchButton')?.addEventListener('click', () => {
     const query = searchInput.value.trim();
-    if (query.length > 2)
+    if (query)
       location.href = '/search?query=' + query;
   })
-
+  categoryPath = document.getElementById('categoryPath');
   reviewsSection = document.getElementById('reviewsSection');
   reviewsSection?.querySelectorAll('a:has(img.avatar-xs[src=""])').forEach(i => {
     const visibleName = i.textContent.trim();
@@ -167,6 +176,61 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 }, {once: true});
 
+async function toggleBookmark(target, reviewId) {
+  try {
+    const reviewStatusKey = 'review_' + reviewId;
+    const response = await sendFetch(null, `/api/toggle-bookmark/${reviewId}`, 'POST');
+    if (response.ok) {
+      let reviewStatus = sessionStorage.getItem(reviewStatusKey);
+      if (!reviewStatus) await updateReviewStatus(reviewId);
+      else {
+        reviewStatus = JSON.parse(reviewStatus)
+        reviewStatus.isBookmarked = response.isBookmarked;
+        sessionStorage.setItem(reviewStatusKey, JSON.stringify(reviewStatus));
+      }
+      target.classList.toggle('text-warning', response.isBookmarked);
+    }
+  } catch (error) {
+    createPopup('Error toggling bookmark: ' + error, messageLevel.ERROR);
+  }
+}
+
+async function updateReviewStatus(reviewId) {
+  try {
+    if (!userId) return;
+    const reviewStatusKey = 'review_' + reviewId;
+    let reviewStatus = JSON.parse(sessionStorage.getItem(reviewStatusKey));
+    if (!reviewStatus) {
+      // Fetch from server if not cached
+      const response = await sendFetch(null, `/api/review-status/${reviewId}`);
+      if (response.ok) {
+        sessionStorage.setItem(reviewStatusKey,
+          JSON.stringify({
+              isLiked: response.isLiked,
+              isBookmarked: response.isBookmarked
+            }
+          ));
+        reviewStatus = response;
+      }
+    }
+    likeButton?.classList.toggle('text-danger', reviewStatus.isLiked);
+    bookmarkButton?.classList.toggle('text-warning', reviewStatus.isBookmarked);
+  } catch (error) {
+    createPopup('Error loading review status: ' + error);
+  }
+}
+
+function fillCategoryPath(categoryId) {
+  if (!categoryPath) return;
+  categoryPath.innerHTML = [categoryId, ...getAllParentCategories(categoryId)].reverse().map((id, i) => {
+    const cat = categories.get(id);
+    return `<span>${(i > 0 ? ' > ' : '')}
+      <a class="text-decoration-none text-dark" href='/category/${cat.id}'>${cat.name}</a>
+   </span>`
+  }).join('');
+
+}
+
 function formatLikes(likes) {
   if (likes < 10000) {
     return likes.toString();
@@ -235,8 +299,8 @@ function buildCategoryTree(categories) {
       };
       categoryTree.set(id, rootNode);
       nodeMap.set(id, rootNode);
-      leafCategories.delete(category.parentId);
     }
+    leafCategories.delete(category.parentId);
   });
 
   // Рекурсивная функция добавления узлов
@@ -269,7 +333,7 @@ function buildCategoryTree(categories) {
 }
 
 function getAllDescendants(categoryId, maxDepth = 0) {
-  const result = new Set();
+  const result = new Set([categoryId]);
 
   function collectChildren(node, depth) {
     if (maxDepth > 0 && depth >= maxDepth) return;  // Ограничение глубины, если maxDepth > 0
@@ -382,10 +446,6 @@ async function getBrandsForCategories(categoriesToQuery) {
   } catch (error) {
     createPopup('Error fetching brands: ' + error, messageLevel.ERROR);
   }
-}
-
-function getAllChildCategories(categoryId) {
-
 }
 
 function getAllParentCategories(categoryId) {
@@ -604,13 +664,13 @@ function resizeMe(img, max_height, max_width) {
     if (width > max_width) {
       height = Math.round(height * max_width / width);
       width = max_width;
-    }
+    } else return img.src;
   } else if (max_height) {
     if (height > max_height) {
       width = Math.round(width * max_height / height);
       height = max_height;
-    }
-  }
+    } else return img.src;
+  } else return img.src;
 
   console.log(height, width, max_height, max_width);
   canvas.width = width;

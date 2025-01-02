@@ -52,10 +52,10 @@ function createPagination(currentPage, maxPage, handler) {
 const page = parseInt(get('page') || '0', 10);
 const id = parseInt(location.pathname.slice(1).split('/')[1])
 const type = location.pathname.slice(1).split('/')[0]
-
+let subcategoriesList;
 let totalPages = parseInt(document.querySelector('meta[name="_total_pages"]')?.getAttribute("value"), 10) - 1;
 document.addEventListener('utilsInitiated', () => {
-
+  subcategoriesList = document.getElementById('subcategories');
   const username = document.getElementById('visibleName');
   if (username) {
     const profileAvatar = document.getElementById('profileAvatar');
@@ -64,13 +64,28 @@ document.addEventListener('utilsInitiated', () => {
         generateAvatar(username.textContent.trim() || "User", 'avatar-lg', false));
   }
 
-  if (type === 'category') getNewReviews(page).then();
+  if (type === 'category') {
+    getNewReviews(page).then();
+    fillCategoryPath(id);
+    fillSubcategories(id);
+  }
   else createPagination(page, totalPages, goToPage);
 });
 const goToPage = (page) => {
   console.log(`Navigating to page ${page}`);
   location.search = "?page=" + page;
 };
+
+function fillSubcategories(categoryId) {
+  if (!subcategoriesList) return;
+  const children = getAllDescendants(categoryId, 1);
+  children.delete(categoryId);
+  subcategoriesList.innerHTML = Array.from(children.keys()).map((id) => {
+    const cat = categories.get(id);
+    return `<a class="rounded-5 pb-1 pt-1 ps-3 pe-3 alert text-decoration-none text-dark"
+         href="/category/${cat.id}">${cat.name}</a>`
+  }).join('');
+}
 
 async function getNewReviews(page = 0, size = 10) {
   try {
@@ -83,6 +98,9 @@ async function getNewReviews(page = 0, size = 10) {
       addNewReviews(response.reviews);
       if (!response.hasNext)
         createPopup("Nothing more to load :(", messageLevel.INFO);
+      if (response.reviews.length === 0) {
+        reviewsSection.innerHTML = `<h4>No reviews found...</h4>`;
+      }
     }
 
   } catch (e) {

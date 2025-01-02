@@ -46,15 +46,8 @@
     <h1>Reviews for [[${brand.name}]]</h1>
   </th:block>
   <th:block th:if="${type=='category'}">
-    <div>
-      <!--/*@thymesVar id="path" type="java.util.List<com.example.demo.model.Category>"*/-->
-      <span th:each="cat, i:${path}">
-          [[${(i.index > 0 ? ' > ' : '')}]]
-          <a class="text-decoration-none text-dark" th:href="'/category/'+${cat.id}">[[${cat.name}]]</a>
-       </span>
-    </div>
     <h1>Reviews for category "[[${category.name}]]"</h1>
-    <div class="d-flex flex-row flex-wrap gap-1 col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="d-flex flex-row flex-wrap gap-1 col-12 col-sm-10 col-md-6 col-lg-4" id="subcategories">
       <!--/*@thymesVar id="subcategories" type="java.util.List<com.example.demo.model.Category>"*/-->
       <a class="rounded-5 pb-1 pt-1 ps-3 pe-3 alert text-decoration-none text-dark" th:each="cat, i:${subcategories}"
          th:href="'/category/'+${cat.id}">[[${cat.name}]]</a>

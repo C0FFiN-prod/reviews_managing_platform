@@ -35,10 +35,9 @@ function updateBrands(categoryId) {
     categoryBrands.get(categoryId).forEach(br => brands.set(br.id, br.name));
   }
 
-  leafCategories.get(categoryId).forEach(id => {
+  nodeMap.get(categoryId).supercategories.forEach(id => {
     if (categoryBrands.has(id)) {
       categoryBrands.get(id).forEach(br => brands.set(br.id, br.name));
-
     }
   })
 }
@@ -188,9 +187,9 @@ function publishReview() {
 }
 
 async function sendReviewData(action) {
-  let formData = collectReviewData();
+  let formData = collectReviewData(action);
   if (!formData) return;
-  formData.append('action', action);
+
   try {
     const response = await sendFetch(formData, "/api/save-review", "POST");
 
@@ -204,19 +203,17 @@ async function sendReviewData(action) {
   }
 }
 
-function collectReviewData() {
-
+function collectReviewData(action) {
   if (!validateSubject()) {
     reviewSubject.classList.remove('d-none');
     reviewContent.classList.add('d-none');
     return;
   }
-  if (!validateContent()) {
+  if (action === 'publish' && !validateContent()) {
     reviewSubject.classList.add('d-none');
     reviewContent.classList.remove('d-none');
     return;
   }
-
   const formData = new FormData();
 
   // Сбор данных из первой секции
@@ -281,11 +278,20 @@ function collectReviewData() {
     }
   });
   console.log(JSON.stringify(Object.fromEntries(formData.entries())));
-
+  formData.append('action', action);
 
   return formData;
 }
 
+async function getBase64FromUrl(url) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
 
 function formatText(command) {
   document.execCommand(command, false, null);
@@ -377,7 +383,7 @@ function insertImageAtCursor(id) {
 const reviewId = window.location.pathname.startsWith('/edit') ?
   parseInt(window.location.pathname.replace('/edit-review/', ''), 10) : null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('utilsInitiated', () => {
   document.getElementById('saveAsDraftBtn').addEventListener('click', saveAsDraft);
   document.getElementById('publishReviewBtn').addEventListener('click', publishReview);
   pros = document.getElementById('pros');
@@ -497,12 +503,13 @@ document.addEventListener('DOMContentLoaded', () => {
       suggestionsList.classList.remove('show');
     }
   }, {capture: true});
-  categoryInput.addEventListener('focus', () => {
+  categoryInput.addEventListener('focus', (event) => {
     categoryInput.classList.remove('is-invalid');
     categoryError.classList.add('d-none');
     suggestionsList.classList.remove('d-none');
     if (suggestionsList.children.length)
       suggestionsList.classList.add('show');
+    event.target.dispatchEvent(new Event('input'));
   });
 
   categoryInput.addEventListener('transitionend', () => {
@@ -589,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (isCategoryChanged) {
         console.log('Fetching brands...');
-        await getBrandsForCategories([categoryId, ...leafCategories.get(categoryId).supercategories.keys()]);
+        await getBrandsForCategories([categoryId, ...nodeMap.get(categoryId).supercategories.keys()]);
         isCategoryChanged = false;
       }
       updateBrands(categoryId);
@@ -687,30 +694,51 @@ document.addEventListener('DOMContentLoaded', () => {
           if (node.tagName === 'IMG') {
             let id = Number(node.dataset.imgKey);
             let index = Number(node.dataset.imgIndex);
-            imagesIdCount[id]--;
-            delete imagesInd2Id[index];
-            deleteImageIfUnused(id);
+            if (id || id >= 0) {
+              imagesIdCount[id]--;
+              delete imagesInd2Id[index];
+              deleteImageIfUnused(id);
+            }
             console.log(`Erased image ${node.dataset.imgKey}`)
           }
         });
-        mutation.addedNodes.forEach(node => {
+        mutation.addedNodes.forEach((node) => {
           if (node.tagName === 'IMG') {
-            let id = Number(node.dataset.imgKey ?? ++imageKey);
-            let index = Number(node.dataset.imgIndex ?? ++imageIndex);
-            if (!imagesId2Src[id]) {
+            (async (node) => {
+              node.className = "review-img";
               let src = node.src;
+              let hash = src.hashCode();
+              let id = Number(node.dataset.imgKey);
+              let newNode = new Image();
+              if (!id) {
+                if (imagesSrc2Id[hash]) id = imagesSrc2Id[hash];
+                else {
+                  if (!src.startsWith('data:image/'))
+                    newNode.src = await getBase64FromUrl(src);
+                  src = resizeMe(newNode, 500);
+                  hash = src.hashCode();
+                  if (imagesSrc2Id[hash]) id = imagesSrc2Id[hash];
+                }
+              }
+              id = id || ++imageKey;
+              const index = Number(node.dataset.imgIndex ?? ++imageIndex);
+
+              if (!imagesId2Src[id]) {
+                imagesSrc2Id[hash] = id;
+                imagesId2Src[id] = src;
+                imagesIdCount[id] = 0;
+                imageGallery.push(id);
+                renderGallery();
+              }
               node.dataset.imgKey = id.toString();
               node.dataset.imgIndex = index.toString();
-              imagesSrc2Id[src.hashCode()] = id;
-              imagesId2Src[id] = src;
-              imagesIdCount[id] = 0;
-              imageGallery.push(id);
-              renderGallery();
-            }
-            imagesIdCount[id]++;
-            imagesInd2Id[index] = id;
+              imagesIdCount[id]++;
+              imagesInd2Id[index] = id;
+              node.src = src;
 
-            console.log(`Added image ${node.dataset.imgKey}`)
+              console.log(`Added image ${node.dataset.imgKey}`);
+            })(node);
+
           }
         });
       }

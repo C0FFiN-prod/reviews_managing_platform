@@ -1,5 +1,5 @@
 <th:block th:fragment="header">
-  <header class="d-flex justify-content-between text-center align-items-center mt-3 mb-5 gap-1">
+  <header class="d-flex justify-content-between text-center align-items-center mt-3 mb-3 gap-1">
     <a class="m-0 fw-bold text-primary text-decoration-none" href="/" style="line-height: 1;
     font-size: calc(var(--bs-body-font-size) * 2.4);">Reka</a>
     <div class="dropdown w-50">
@@ -23,6 +23,7 @@
             id="headerLoginBtn" th:class="'btn btn-primary '+${noAuthBtn == null ? false : (noAuthBtn?'invisible':'')}" th:unless="${#authorization.expression('isAuthenticated()')}">Sign In
     </button>
   </header>
+  <div class="mb-2" id="categoryPath"></div>
   <th:block th:unless="${(noAuthBtn == null ? false : noAuthBtn) || #authorization.expression('isAuthenticated()')}">
     <script>sessionStorage.clear()</script>
     <div th:replace="~{fragments/login-form-modal :: loginFormModal}"></div>

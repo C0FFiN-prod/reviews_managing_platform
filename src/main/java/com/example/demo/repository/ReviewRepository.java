@@ -1,14 +1,17 @@
 package com.example.demo.repository;
 
 import com.example.demo.enums.Status;
-import com.example.demo.model.*;
+import com.example.demo.model.Brand;
+import com.example.demo.model.Category;
+import com.example.demo.model.Review;
+import com.example.demo.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.lang.NonNull;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +44,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findAllByStatus(Status status, Pageable pageable);
 
-    Page<Review> findPageByTitleContainingIgnoreCase(String title, Pageable pageable);
+    Page<Review> findPageByStatusInAndTitleContainingIgnoreCase(Collection<Status> statuses, String title, Pageable pageable);
 
     Page<Review> findPageByUser(User user, Pageable pageable);
 

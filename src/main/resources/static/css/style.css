@@ -457,4 +457,36 @@ textarea {
     margin-bottom: 4.5em;
 }
 
+.text-justify {
+    text-align: justify !important;
+}
 
+@media (min-width: 576px) {
+    .text-sm-justify {
+        text-align: justify !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .text-md-justify {
+        text-align: justify !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .text-lg-justify {
+        text-align: justify !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .text-xl-justify {
+        text-align: justify !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    .text-xxl-justify {
+        text-align: justify !important;
+    }
+}

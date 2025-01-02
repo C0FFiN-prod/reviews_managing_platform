@@ -1,16 +1,20 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.UserExtendedDTO;
-import com.example.demo.model.Bookmark;
 import com.example.demo.enums.Role;
+import com.example.demo.model.Bookmark;
 import com.example.demo.model.User;
 import com.example.demo.service.BookmarkService;
 import com.example.demo.service.ImageService;
 import com.example.demo.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,10 +32,12 @@ public class UserController {
     private final UserService userService;
     private final ImageService imageService;
     private final BookmarkService bookmarkService;
+    private SessionRegistry sessionRegistry;
 
     @PostMapping("/api/delete-user/{id}")
     public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserDetails userDetails,
-                                        @PathVariable long id) {
+                                        @PathVariable long id,
+                                        HttpServletRequest request) {
         try {
             User user = userService.findByUsername(userDetails.getUsername());
             boolean isOwnId = user.getId() == id;
@@ -42,6 +48,20 @@ public class UserController {
             if (id != -1 && ((!isAdmin && isOwnId) ||
                     (isAdmin && !isOwnId && isOtherUserFound && !isOtherUserAdmin))) {
                 userService.deleteById(id);
+
+                List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
+                for (Object principal : allPrincipals) {
+                    if (principal instanceof UserDetails details) {
+                        if (details.getUsername().equals(otherUser.getUsername())) {
+                            sessionRegistry.getAllSessions(principal, false)
+                                    .forEach(SessionInformation::expireNow);
+                        }
+                    }
+                }
+                if (isOwnId) {
+                    request.getSession().invalidate();
+                    SecurityContextHolder.clearContext();
+                }
                 return makeResponseString("Account deleted successfully", HttpStatus.OK);
             } else {
                 if (id == -1)

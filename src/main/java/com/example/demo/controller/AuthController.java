@@ -21,10 +21,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 import static com.example.demo.Utils.logError;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
@@ -123,10 +126,11 @@ public class AuthController {
     }
 
     @ResponseBody
-    @GetMapping("/api/current-user")
+    @GetMapping("/api/public/current-user")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) return ResponseEntity.ok(Map.of("user", false));
         User user = userService.findByUsername(userDetails.getUsername());
-        return ResponseEntity.ok(new UserExtendedDTO(user));
+        return ResponseEntity.ok(Map.of("user", new UserExtendedDTO(user)));
     }
 
 

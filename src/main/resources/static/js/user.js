@@ -117,8 +117,10 @@ const UserModule = (() => {
     const bookmarks = await response.json();
     const bookmarksList = document.getElementById('bookmarksList');
     bookmarksList.innerHTML = bookmarks.map(bookmark => `
-    <li class="list-group-item">
-      <a href="/review/${bookmark.reviewId}">${bookmark.reviewTitle}</a>
+    <li class="list-group-item flex-vcenter">
+    <button class="text-info text-warning btn btn-square cursor-pointer me-1" 
+    onclick="toggleBookmark(this,${bookmark.reviewId})"><i class="bi bi-bookmark-fill"></i></button>
+      <a href="/review/${bookmark.reviewId}" class="text-dark text-decoration-none">${bookmark.reviewTitle}</a>
     </li>
   `).join('') || `<h5 class="list-group-item m-0">You have no bookmarks</h5>`;
   }
