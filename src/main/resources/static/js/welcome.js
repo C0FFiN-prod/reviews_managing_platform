@@ -56,7 +56,7 @@ text-center text-dark top-50 translate-middle">+${formatLikes(imagesLeft)} Photo
       div.innerHTML = `
 <div class="card-header flex-vcenter justify-content-between">
   <h4 class="m-0"><a href="/review/${r['id']}" class="text-decoration-none text-black">${r['title']}</a></h4>
-  <span class="fw-bolder m-0"><span class="align-text-top h5 lh-1 mb-0 me-1">${r['likes']}</span><i class="bi bi-heart-fill align-baseline text-danger"></i></span>
+  <span class="fw-bolder m-0 mw-fit-content"><span class="align-text-top h5 lh-1 mb-0 me-1">${r['likes']}</span><i class="bi bi-heart-fill align-baseline text-danger"></i></span>
 </div>
 <div class="card-body row">
 <div class="col-12 col-md-6 float-start"><h5>${r['shortReview']}</h5><p>${r['reviewTeaser']}</p></div>

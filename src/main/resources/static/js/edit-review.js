@@ -665,11 +665,11 @@ document.addEventListener('utilsInitiated', () => {
         .then(imgSrc => {
           const srcHash = imgSrc.hashCode();
           if (imagesSrc2Id[srcHash] === undefined) {
+            ++imageKey;
             imagesId2Src[imageKey] = imgSrc;
             imagesSrc2Id[srcHash] = imageKey;
             imagesIdCount[imageKey] = 0;
             imageGallery.push(imageKey); // Добавляем изображение в галерею
-            imageKey++;
             renderGallery(); // Перерисовываем галерею
           } else console.log('Image already uploaded');
         })

@@ -490,3 +490,7 @@ textarea {
         text-align: justify !important;
     }
 }
+
+.mw-fit-content {
+    min-width: fit-content;
+}

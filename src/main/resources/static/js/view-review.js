@@ -1,5 +1,5 @@
 const reviewId = Number(window.location.pathname.split('/').pop());
-const reviewStatusKey = `reviewStatus_${reviewId}`;
+const reviewStatusKey = `review_${reviewId}`;
 let isAscending = false;
 let cachedComments = [];
 let likeButton;
@@ -64,7 +64,7 @@ document.addEventListener('utilsInitiated', () => {
     }
   });
 
-  bookmarkButton?.addEventListener('click', (event) => toggleBookmark(event.target, reviewId));
+  bookmarkButton?.addEventListener('click', () => toggleBookmark(bookmarkButton, reviewId));
 
   // Обработка поля комментария
   commentInput?.addEventListener('focus', () => {
@@ -114,6 +114,7 @@ document.addEventListener('utilsInitiated', () => {
           comment.isAnonymous,
           comment.user.id
         );
+        cachedComments.push(comment);
         commentsList.insertAdjacentHTML('afterbegin', newCommentHtml);
 
         commentInput.value = '';
